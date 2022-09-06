@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import com.example.primenumgen.databinding.ActivityMainBinding
-import com.example.primenumgen.generator.GeneratedActivity
+import com.example.primenumgen.Generator.GeneratedActivity
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding : ActivityMainBinding

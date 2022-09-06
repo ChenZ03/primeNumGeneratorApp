@@ -14,7 +14,7 @@
         android:theme="@style/Theme.PrimeNumGen"
         tools:targetApi="31">
         <activity
-            android:name=".generator.GeneratedActivity"
+            android:name=".Generator.GeneratedActivity"
             android:exported="false" />
         <activity
             android:name=".home.MainActivity"

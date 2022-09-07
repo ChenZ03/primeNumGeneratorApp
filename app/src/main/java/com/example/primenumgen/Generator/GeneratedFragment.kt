@@ -29,20 +29,20 @@ class GeneratedFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val initialString = "Prime Numbers : "
         val args = arguments
         val startNum = args?.getInt("startNum")
         val endNum = args?.getInt("endNum")
+        binding.primeNumbers.setText("Prime Numbers (" + startNum + " to " + endNum + "):")
+
         lifecycleScope.launch {
             val primeNumbers : MutableList<Int> = viewModel.generatePrimeNums(startNum!!, endNum!!)
-            binding.generatedText.text = initialString
-
             if (primeNumbers.isEmpty()) {
                 binding.empty.visibility = View.VISIBLE
             } else {
                 for (num in primeNumbers) {
-                    binding.generatedText.append("$num ")
+                    binding.generatedText.append("$num,  ")
                 }
+                binding.generatedText.setText(binding.generatedText.text.toString().dropLast(2))
             }
         }
 

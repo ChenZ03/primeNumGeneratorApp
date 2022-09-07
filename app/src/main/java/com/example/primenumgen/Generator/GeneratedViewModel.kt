@@ -2,23 +2,63 @@ package com.example.primenumgen.Generator
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.primenumgen.base.BaseViewModel
-import com.example.primenumgen.base.GeneratorReporsitory
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlin.math.floor
 
-class GeneratedViewModel(private val repository: GeneratorReporsitory) : BaseViewModel() {
 
-    fun getPrimeNumbers() {
-        repository.getPrimeNumbers(startNum.value!!, endNum.value!!)
+class GeneratedViewModel() : ViewModel() {
+
+    private fun isPrime(number: Int): Boolean {
+        for (i in 2 until number) {
+            if (number % i == 0) {
+                return false
+            }
+        }
+        return true
     }
 
-    class Provider(private val repository: GeneratorReporsitory): ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if(modelClass.isAssignableFrom(GeneratedViewModel::class.java)) {
-                return GeneratedViewModel(repository) as T
+    suspend fun generatePrimeNums(startNum: Int, endNum: Int): MutableList<Int> {
+        val primeNumbers = mutableListOf<Int>()
+        val allNum = (startNum..endNum).toList()
+        val lock = Mutex()
+        if(endNum - startNum > 10000){
+            // divide to coroutines
+            val numOfCoroutines = floor((endNum - startNum) / 10000.0).toInt()
+            coroutineScope {
+                async(Dispatchers.Default) {
+                    for (i in numOfCoroutines * 1000 until allNum.size) {
+                        if (isPrime(allNum[i])) {
+                            lock.withLock {
+                                primeNumbers.add(allNum[i])
+                            }
+                        }
+                    }
+                }
+                for (i in 1..numOfCoroutines) {
+                    for (n in i * 1000 - 1000..i * 1000) {
+                        async(Dispatchers.Default) {
+                            if (isPrime(allNum[n])) {
+                                lock.withLock {
+                                    primeNumbers.add(allNum[n])
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
-            throw IllegalArgumentException("ViewModel is not valid")
+        }else{
+            for (i in startNum until endNum) {
+                if (isPrime(i)) {
+                    primeNumbers.add(i)
+                }
+            }
         }
+
+        primeNumbers.sort()
+        return primeNumbers
     }
 
 }

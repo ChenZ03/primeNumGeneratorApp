@@ -17,5 +17,12 @@
         android:id="@+id/generatedFragment"
         android:name="com.example.primenumgen.Generator.GeneratedFragment"
         android:label="fragment_generated"
-        tools:layout="@layout/fragment_generated" />
+        tools:layout="@layout/fragment_generated">
+        <argument
+            android:name="startNum"
+            app:argType="integer" />
+        <argument
+            android:name="endNum"
+            app:argType="integer" />
+    </fragment>
 </navigation>

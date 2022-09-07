@@ -2,23 +2,27 @@ package com.example.primenumgen.Generator
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.primenumgen.base.BaseViewModel
-import com.example.primenumgen.base.GeneratorReporsitory
 
-class GeneratedViewModel(private val repository: GeneratorReporsitory) : BaseViewModel() {
 
-    fun getPrimeNumbers() {
-        repository.getPrimeNumbers(startNum.value!!, endNum.value!!)
+class GeneratedViewModel() : ViewModel() {
+
+    private fun isPrime(number: Int): Boolean {
+        for (i in 2 until number) {
+            if (number % i == 0) {
+                return false
+            }
+        }
+        return true
     }
 
-    class Provider(private val repository: GeneratorReporsitory): ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if(modelClass.isAssignableFrom(GeneratedViewModel::class.java)) {
-                return GeneratedViewModel(repository) as T
+    suspend fun generatePrimeNums(startNum: Int, endNum: Int): MutableList<Int> {
+        val primeNumbers = mutableListOf<Int>()
+        for (i in startNum..endNum) {
+            if (isPrime(i)) {
+                primeNumbers.add(i)
             }
-
-            throw IllegalArgumentException("ViewModel is not valid")
         }
+        return primeNumbers
     }
 
 }

@@ -50,7 +50,7 @@ class GeneratedViewModel() : ViewModel() {
             }
 
         }else{
-            for (i in startNum until endNum) {
+            for (i in startNum until endNum + 1) {
                 if (isPrime(i)) {
                     primeNumbers.add(i)
                 }

@@ -34,10 +34,15 @@ class GeneratedFragment : Fragment() {
         val startNum = args?.getInt("startNum")
         val endNum = args?.getInt("endNum")
         lifecycleScope.launch {
-            val primNumbers : MutableList<Int> = viewModel.generatePrimeNums(startNum!!, endNum!!)
+            val primeNumbers : MutableList<Int> = viewModel.generatePrimeNums(startNum!!, endNum!!)
             binding.generatedText.text = initialString
-            for (i in primNumbers) {
-                binding.generatedText.append("$i, ")
+
+            if (primeNumbers.isEmpty()) {
+                binding.empty.visibility = View.VISIBLE
+            } else {
+                for (num in primeNumbers) {
+                    binding.generatedText.append("$num ")
+                }
             }
         }
 

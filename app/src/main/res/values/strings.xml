@@ -7,4 +7,6 @@
     <string name="back">Back</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="no_prime_numbers">No Prime numbers</string>
+    <string name="no_prime_numbers_found">No Prime Numbers Found</string>
 </resources>

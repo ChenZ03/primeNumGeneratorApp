@@ -12,9 +12,9 @@ abstract class BaseViewModel: ViewModel() {
 
     val primeNums : MutableLiveData<String> = MutableLiveData()
 
-    protected val _finish: MutableSharedFlow<Unit> = MutableSharedFlow()
-    val finish: SharedFlow<Unit> = _finish
+    protected val _finish: MutableSharedFlow<Boolean> = MutableSharedFlow()
+    val finish: SharedFlow<Boolean> = _finish
 
-    protected val _error: MutableSharedFlow<String> = MutableSharedFlow()
-    val error: SharedFlow<String> = _error
+    protected val _nothing: MutableSharedFlow<Boolean> = MutableSharedFlow()
+    val nothing: SharedFlow<Boolean> = _nothing
 }

@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import com.example.primenumgen.R
@@ -34,15 +35,19 @@ class GeneratedFragment : Fragment() {
         val endNum = args?.getInt("endNum")
         binding.primeNumbers.setText("Prime Numbers (" + startNum + " to " + endNum + "):")
 
+        viewModel.isLoading.asLiveData().observe(viewLifecycleOwner) {
+            binding.loading.visibility = if (it) View.VISIBLE else View.GONE
+        }
+
         lifecycleScope.launch {
             val primeNumbers : MutableList<Int> = viewModel.generatePrimeNums(startNum!!, endNum!!)
             if (primeNumbers.isEmpty()) {
                 binding.empty.visibility = View.VISIBLE
             } else {
                 for (num in primeNumbers) {
-                    binding.generatedText.append("$num,  ")
+                    binding.generatedText.append("$num ,  ")
                 }
-                binding.generatedText.setText(binding.generatedText.text.toString().dropLast(2))
+                binding.generatedText.setText(binding.generatedText.text.toString().dropLast(3))
             }
         }
 

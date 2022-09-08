@@ -12,8 +12,6 @@ import kotlin.math.floor
 
 
 class GeneratedViewModel() : ViewModel() {
-    protected val _loading : MutableSharedFlow<Boolean> = MutableSharedFlow()
-    val isLoading : SharedFlow<Boolean> = _loading
 
     private fun isPrime(number: Int): Boolean {
         for (i in 2 until number) {
@@ -25,55 +23,40 @@ class GeneratedViewModel() : ViewModel() {
     }
 
     suspend fun generatePrimeNums(startNum: Int, endNum: Int): MutableList<Int> {
-        viewModelScope.launch {
-            _loading.emit(true)
-        }
+
         val primeNumbers = mutableListOf<Int>()
-        val allNum = (startNum..endNum).toList()
         val lock = Mutex()
         if(endNum - startNum > 10000){
-            // divide to coroutines
-            val numOfCoroutines = floor((endNum - startNum) / 10000.0).toInt()
-            coroutineScope {
-                launch(Dispatchers.Default) {
-                    for (i in numOfCoroutines * 1000 until allNum.size) {
-                        if (isPrime(allNum[i])) {
+            // divide to coroutines scope and join with dispatchers
+            val coroutineScope = CoroutineScope(Dispatchers.IO)
+            val jobs = mutableListOf<Job>()
+            val step = floor((endNum - startNum) / 10000.0).toInt()
+            for (i in startNum until endNum + 1 step step) {
+                jobs.add(coroutineScope.launch {
+                    for (j in i until i + step) {
+                        if (isPrime(j)) {
                             lock.withLock {
-                                primeNumbers.add(allNum[i])
+                                primeNumbers.add(j)
                             }
                         }
                     }
-                }
-                for (i in 1..numOfCoroutines) {
-                    for (n in i * 1000 - 1000..i * 1000) {
-                        launch(Dispatchers.Default) {
-                            if (isPrime(allNum[n])) {
-                                lock.withLock {
-                                    primeNumbers.add(allNum[n])
-                                }
-                            }
-                        }
-                    }
-                }
-                viewModelScope.launch {
-                    _loading.emit(false)
-                }
+                })
             }
+            jobs.forEach { it.join() }
+            primeNumbers.sort()
 
+            return primeNumbers
         }else{
             for (i in startNum until endNum + 1) {
                 if (isPrime(i)) {
                     primeNumbers.add(i)
                 }
             }
-            viewModelScope.launch {
-                _loading.emit(false)
-            }
+
+            primeNumbers.sort()
+
+            return primeNumbers
         }
-
-        primeNumbers.sort()
-
-        return primeNumbers
     }
 
 }

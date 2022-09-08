@@ -29,37 +29,30 @@ class GeneratedViewModel() : ViewModel() {
             _loading.emit(true)
         }
         val primeNumbers = mutableListOf<Int>()
-        val allNum = (startNum..endNum).toList()
         val lock = Mutex()
         if(endNum - startNum > 10000){
-            // divide to coroutines
-            val numOfCoroutines = floor((endNum - startNum) / 10000.0).toInt()
-            coroutineScope {
-                launch(Dispatchers.Default) {
-                    for (i in numOfCoroutines * 1000 until allNum.size) {
-                        if (isPrime(allNum[i])) {
+            // divide to coroutines scope async and await all job done
+            val jobs = mutableListOf<Job>()
+            val numPerJob = floor((endNum - startNum) / 10000.0).toInt()
+            for (i in 0..10000){
+                val start = startNum + i * numPerJob
+                val end = if(i == 10000) endNum else startNum + (i + 1) * numPerJob
+                jobs.add(viewModelScope.launch {
+                    for (num in start..end){
+                        if(isPrime(num)){
                             lock.withLock {
-                                primeNumbers.add(allNum[i])
+                                primeNumbers.add(num)
                             }
                         }
                     }
-                }
-                for (i in 1..numOfCoroutines) {
-                    for (n in i * 1000 - 1000..i * 1000) {
-                        launch(Dispatchers.Default) {
-                            if (isPrime(allNum[n])) {
-                                lock.withLock {
-                                    primeNumbers.add(allNum[n])
-                                }
-                            }
-                        }
-                    }
-                }
-                viewModelScope.launch {
-                    _loading.emit(false)
-                }
+                })
             }
-
+            jobs.joinAll()
+            primeNumbers.sort()
+            viewModelScope.launch {
+                _loading.emit(false)
+            }
+            return primeNumbers
         }else{
             for (i in startNum until endNum + 1) {
                 if (isPrime(i)) {
@@ -69,11 +62,10 @@ class GeneratedViewModel() : ViewModel() {
             viewModelScope.launch {
                 _loading.emit(false)
             }
+            primeNumbers.sort()
+
+            return primeNumbers
         }
-
-        primeNumbers.sort()
-
-        return primeNumbers
     }
 
 }

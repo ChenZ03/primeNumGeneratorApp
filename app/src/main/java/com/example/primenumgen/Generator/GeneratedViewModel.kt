@@ -12,8 +12,6 @@ import kotlin.math.floor
 
 
 class GeneratedViewModel() : ViewModel() {
-    protected val _loading : MutableSharedFlow<Boolean> = MutableSharedFlow()
-    val isLoading : SharedFlow<Boolean> = _loading
 
     private fun isPrime(number: Int): Boolean {
         for (i in 2 until number) {
@@ -25,33 +23,28 @@ class GeneratedViewModel() : ViewModel() {
     }
 
     suspend fun generatePrimeNums(startNum: Int, endNum: Int): MutableList<Int> {
-        viewModelScope.launch {
-            _loading.emit(true)
-        }
+
         val primeNumbers = mutableListOf<Int>()
         val lock = Mutex()
         if(endNum - startNum > 10000){
-            // divide to coroutines scope async and await all job done
+            // divide to coroutines scope and join with dispatchers
+            val coroutineScope = CoroutineScope(Dispatchers.IO)
             val jobs = mutableListOf<Job>()
-            val numPerJob = floor((endNum - startNum) / 10000.0).toInt()
-            for (i in 0..10000){
-                val start = startNum + i * numPerJob
-                val end = if(i == 10000) endNum else startNum + (i + 1) * numPerJob
-                jobs.add(viewModelScope.launch {
-                    for (num in start..end){
-                        if(isPrime(num)){
+            val step = floor((endNum - startNum) / 10000.0).toInt()
+            for (i in startNum until endNum + 1 step step) {
+                jobs.add(coroutineScope.launch {
+                    for (j in i until i + step) {
+                        if (isPrime(j)) {
                             lock.withLock {
-                                primeNumbers.add(num)
+                                primeNumbers.add(j)
                             }
                         }
                     }
                 })
             }
-            jobs.joinAll()
+            jobs.forEach { it.join() }
             primeNumbers.sort()
-            viewModelScope.launch {
-                _loading.emit(false)
-            }
+
             return primeNumbers
         }else{
             for (i in startNum until endNum + 1) {
@@ -59,9 +52,7 @@ class GeneratedViewModel() : ViewModel() {
                     primeNumbers.add(i)
                 }
             }
-            viewModelScope.launch {
-                _loading.emit(false)
-            }
+
             primeNumbers.sort()
 
             return primeNumbers

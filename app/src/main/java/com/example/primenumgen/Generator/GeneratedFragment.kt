@@ -1,3 +1,5 @@
+// Fragment/ui for generated prime numbers 
+
 package com.example.primenumgen.Generator
 
 import android.os.Bundle
@@ -20,6 +22,7 @@ import kotlinx.coroutines.withContext
 
 
 class GeneratedFragment : Fragment() {
+    // init binding and viewModel
     lateinit var binding: FragmentGeneratedBinding
     private val viewModel: GeneratedViewModel by viewModels()
 
@@ -34,28 +37,36 @@ class GeneratedFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // get values from previous fragment
         val args = arguments
         val startNum = args?.getInt("startNum")
         val endNum = args?.getInt("endNum")
+
+        // set values to header text
         binding.primeNumbers.setText("Prime Numbers (" + startNum + " to " + endNum + "):")
 
-
+        //launch lifecycleScope to get prime numbers
         lifecycleScope.launch {
             whenStarted {
+                // show loading icon
                binding.loading.visibility = View.VISIBLE
+            //    get prime numbers from viewModel
                 val primeNumbers = withContext(Dispatchers.Default) {
                     viewModel.generatePrimeNums(startNum!!, endNum!!)
                 }
+                // hide loading icon after getting prime numbers
                 binding.loading.visibility = View.GONE
+                // set prime numbers to text view
                 for (num in primeNumbers) {
                     binding.generatedText.append("$num ,")
                 }
+                // delete the last comma from text 
                 binding.generatedText.setText(binding.generatedText.text.toString().dropLast(1))
             }
 
         }
 
-        Log.i("GeneratedFragment", "args: $args")
+        // set onClickListener for back button
         binding.back.setOnClickListener {
             NavHostFragment.findNavController(this).popBackStack()
         }

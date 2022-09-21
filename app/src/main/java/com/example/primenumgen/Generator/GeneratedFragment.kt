@@ -47,6 +47,9 @@ class GeneratedFragment : Fragment() {
                     viewModel.generatePrimeNums(startNum!!, endNum!!)
                 }
                 binding.loading.visibility = View.GONE
+                if (primeNumbers.size == 0){
+                    binding.empty.visibility = View.VISIBLE
+                }
                 for (num in primeNumbers) {
                     binding.generatedText.append("$num ,")
                 }

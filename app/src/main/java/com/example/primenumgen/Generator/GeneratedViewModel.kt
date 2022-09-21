@@ -1,3 +1,5 @@
+// viewmodel to generate prime numbers 
+
 package com.example.primenumgen.Generator
 
 import androidx.lifecycle.ViewModel
@@ -13,6 +15,7 @@ import kotlin.math.floor
 
 class GeneratedViewModel() : ViewModel() {
 
+    // function to check if its prime number or not from each number 
     private fun isPrime(number: Int): Boolean {
         if( number <= 1 ){
             return false
@@ -25,10 +28,12 @@ class GeneratedViewModel() : ViewModel() {
         return true
     }
 
+    // function to generate prime numbers
     suspend fun generatePrimeNums(startNum: Int, endNum: Int): MutableList<Int> {
 
         val primeNumbers = mutableListOf<Int>()
         val lock = Mutex()
+        // check length of numbers
         if(endNum - startNum > 10000){
             // divide to coroutines scope and join with dispatchers
             val coroutineScope = CoroutineScope(Dispatchers.IO)
@@ -46,6 +51,8 @@ class GeneratedViewModel() : ViewModel() {
                 })
             }
             jobs.forEach { it.join() }
+
+            // sort the primeNumbers as it might be not sorted
             primeNumbers.sort()
 
             return primeNumbers

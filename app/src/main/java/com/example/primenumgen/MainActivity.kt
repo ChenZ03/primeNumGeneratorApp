@@ -1,3 +1,5 @@
+// landing page for the nav to live
+
 package com.example.primenumgen
 
 import android.content.Intent

@@ -56,7 +56,13 @@ class GeneratedFragment : Fragment() {
                 }
                 // hide loading icon after getting prime numbers
                 binding.loading.visibility = View.GONE
+
+                if (primeNumbers.size == 0){
+                    binding.empty.visibility = View.VISIBLE
+                }
+
                 // set prime numbers to text view
+
                 for (num in primeNumbers) {
                     binding.generatedText.append("$num ,")
                 }
